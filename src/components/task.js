@@ -2,10 +2,11 @@ import {
   MONTH_NAMES
 } from "../const.js";
 import {
+  createElement,
   formatTime
 } from "../utils.js";
 
-export const createTaskTemplate = (task) => {
+const createTaskTemplate = (task) => {
   const {
     description,
     dueDate,
@@ -15,16 +16,16 @@ export const createTaskTemplate = (task) => {
     isFavorite
   } = task;
 
-  const isExpired = dueDate instanceof Date && dueDate < Date.now();
-  const isDateShowing = !!dueDate;
+  const isExpired = dueDate instanceof Date && dueDate < Date.now(); // Установка флага истечения срока
+  const isDateShowing = !!dueDate; // Установка флага показа даты выполнения задачи
 
   const date = isDateShowing ? `${dueDate.getDate()} ${MONTH_NAMES[dueDate.getMonth()]}` : ``;
   const time = isDateShowing ? formatTime(dueDate) : ``;
 
-  const repeatClass = Object.values(repeatingDays).some(Boolean) ? `card--repeat` : ``;
-  const deadlineClass = isExpired ? `card--deadline` : ``;
-  const archiveButtonInactiveClass = isArchive ? `` : `card__btn--disabled`;
-  const favoriteButtonInactiveClass = isFavorite ? `` : `card__btn--disabled`;
+  const repeatClass = Object.values(repeatingDays).some(Boolean) ? `card--repeat` : ``; // Проверка повторяемости задачи и установка соответствующего класса
+  const deadlineClass = isExpired ? `card--deadline` : ``; // Установка класса "Просрочено"
+  const archiveButtonInactiveClass = isArchive ? `` : `card__btn--disabled`; // Установка класса "Архив"
+  const favoriteButtonInactiveClass = isFavorite ? `` : `card__btn--disabled`; // Установка класса "Избранное"
 
   return (
     `<article class="card card--${color} ${repeatClass} ${deadlineClass}">
@@ -73,3 +74,27 @@ export const createTaskTemplate = (task) => {
     </article>`
   );
 };
+
+export default class Task {
+  constructor(task) {
+    this._task = task;
+
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createTaskTemplate(this._task);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
